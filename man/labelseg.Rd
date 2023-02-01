@@ -9,10 +9,12 @@ labelseg(data, genome = "hg38")
 \arguments{
 \item{data}{CNA segment data with logR values}
 
-\item{genome}{genome version of input data}
+\item{genome}{genome version of input data. Available options are "hg38" and "hg19". Default is "hg38".}
 }
 \value{
-segment data with labels
+segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents
+low-level deletion. "+2" represents high-level duplication. "+1" represents low-level duplication.
+"0" represents no SCNA.
 }
 \description{
 This function assigns segments SCNA labels to call different levels of SCNA.
