@@ -4,17 +4,17 @@
 #' It estimates calling thresholds from logR distribution of individual samples.
 #'
 #' @param data CNA segment data with logR values
-#' @param genome genome version of input data
-#' @return segment data with labels
+#' @param genome genome version of input data. Available options are "hg38" and "hg19". Default is "hg38".
+#' @return segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents
+#' low-level deletion. "+2" represents high-level duplication. "+1" represents low-level duplication.
+#' "0" represents no SCNA.
 #' @export
 
 labelseg <- function(data, genome ='hg38'){
   data <- as.data.frame(data)
   sample_num <- length(unique(data[,1]))
-  if (sample_num == 0){
-    cat(paste('This file is empty','\n'))
-    return()
-  }
+  if (sample_num == 0){stop("This file is empty")}
+  if (!genome %in% c("hg38","hg19")){stop("Invalid genome version")}
   if (sample_num > 1){
     sample_name <- unique(data[,1])
     result <- list()
