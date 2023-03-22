@@ -4,12 +4,14 @@
 \alias{labelseg}
 \title{Annotate segment profiles}
 \usage{
-labelseg(data, genome = "hg38")
+labelseg(data, genome = "hg38", baseshift = "n")
 }
 \arguments{
 \item{data}{CNA segment data with logR values}
 
-\item{genome}{genome version of input data. Available options are "hg38" and "hg19". Default is "hg38".}
+\item{genome}{genome version of input data. Available options are "hg38","hg19" and "hg18". Default is "hg38".}
+
+\item{baseshift}{Direction of baseline shift. Available options are  "n" (no shift), "h" (shift higher), and "l" (shift lower). Default is "n".}
 }
 \value{
 segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents

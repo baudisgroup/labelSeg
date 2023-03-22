@@ -4,37 +4,37 @@
 #' It estimates calling thresholds from logR distribution of individual samples.
 #'
 #' @param data CNA segment data with logR values
-#' @param genome genome version of input data. Available options are "hg38" and "hg19". Default is "hg38".
+#' @param genome genome version of input data. Available options are "hg38","hg19" and "hg18". Default is "hg38".
+#' @param baseshift Direction of baseline shift. Available options are  "n" (no shift), "h" (shift higher), and "l" (shift lower). Default is "n".
 #' @return segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents
 #' low-level deletion. "+2" represents high-level duplication. "+1" represents low-level duplication.
 #' "0" represents no SCNA.
 #' @export
 
-labelseg <- function(data, genome ='hg38'){
+labelseg <- function(data, genome ='hg38',baseshift = 'n'){
   data <- as.data.frame(data)
   sample_num <- length(unique(data[,1]))
   if (sample_num == 0){stop("This file is empty")}
-  if (!genome %in% c("hg38","hg19")){stop("Invalid genome version")}
+  if (!genome %in% c("hg38","hg19","hg18")){stop("Invalid genome version")}
   if (sample_num > 1){
     sample_name <- unique(data[,1])
     result <- list()
     for (i in seq(sample_num)){
       inddata <- data[data[,1]== sample_name[i],]
-      result[[i]] <- labelindseg(data = inddata,genome=genome)
+      result[[i]] <- labelindseg(data = inddata,genome=genome,baseshift = baseshift)
     }
     result <- do.call(rbind,result)
   } else{
-    result <- labelindseg(data = data,genome=genome)
+    result <- labelindseg(data = data,genome=genome,baseshift = baseshift)
   }
 
   return(result)
 }
 
 
-labelindseg <- function(data, genome){
+labelindseg <- function(data, genome, baseshift){
   set.seed(123)
   chr.bin <- get(paste0(genome,'_bins'))
-  data <- as.data.frame(data)
   Start <- data[,3]
   End <- data[,4]
   chr <- data[,2]
@@ -71,15 +71,35 @@ labelindseg <- function(data, genome){
   ## Find baseline cluster
   neu_idx <- 0
   length_control <- 0.4
+  recheck <- 0
   while(length_control >= 0.2 & neu_idx == 0){
     for (i in order(abs(peak_mean))){
       if ((l_db_length_lst[i]/sum(l_db_length_lst)) >= length_control){
-        if (neu_idx == 0){
+        if (neu_idx == 0 & recheck == 0){
           neu_idx <- i
           neu_thre <- peak_mean[i]
         }
+        if (baseshift == 'n'){
+          break
+        } else if (baseshift == 'h'){
+        neu_idx <- 0
+        recheck <- 1
+        if (peak_mean[i] > neu_thre){
+          neu_idx <- i
+          neu_thre <- peak_mean[i]
+          break
+        }
+      } else if (baseshift == 'l'){
+          neu_idx <- 0
+          recheck <- 1
+          if (peak_mean[i] < neu_thre){
+            neu_idx <- i
+            neu_thre <- peak_mean[i]
+            break
+          }
       }
     }
+  }
     length_control <- length_control - 0.1
   }
 
