@@ -12,5 +12,5 @@ devtools::install_github("baudisgroup/LabelSeg")
 ## Example use
 
 ```{r}
-labelseg(data=segment_data, genome="hg38")
+labelseg(data=segment_data, genome="hg38",baseshift = 'n')
 ```
