@@ -34,7 +34,7 @@ labelseg <- function(data, genome ='hg38',baseshift = 'n'){
 
 labelindseg <- function(data, genome, baseshift){
   set.seed(123)
-  chr.bin <- get(paste0(genome,'_bins'))
+  chr.bin <- get(paste0(genome,'_chr_bins'))
   Start <- data[,3]
   End <- data[,4]
   chr <- data[,2]
