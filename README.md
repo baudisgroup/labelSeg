@@ -12,10 +12,11 @@ devtools::install_github("baudisgroup/LabelSeg")
 ## Example use
 
 ```{r}
-# load example data
+# load library and example data
+library(LabelSeg)
 segfile <- system.file("extdata", "example.seg", package = "LabelSeg")
 data <- read.table(segfile,header=T,sep='\t')
 
 # run LabelSeg
-labelled.data <- labelseg(data=data, genome="hg38",baseshift = 'n')
+labelled.data <- labelseg(data=data, genome="hg38")
 ```
