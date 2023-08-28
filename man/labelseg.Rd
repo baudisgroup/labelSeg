@@ -4,21 +4,51 @@
 \alias{labelseg}
 \title{Annotate segment profiles}
 \usage{
-labelseg(data, genome = "hg38", baseshift = "n")
+labelseg(
+  data,
+  genome = "hg38",
+  baseshift = "n",
+  method = "dbscan",
+  len_sep = TRUE,
+  minPts = 1,
+  lb_dup = 0.15,
+  hb_dup = 0.7,
+  lb_del = 0.15,
+  hb_del = 1.5
+)
 }
 \arguments{
 \item{data}{CNA segment data with logR values}
 
-\item{genome}{genome version of input data. Available options are "hg38","hg19" and "hg18". Default is "hg38".}
+\item{genome}{Genome version of input data. Available options are "hg38","hg19" and "hg18". Default is "hg38".}
 
 \item{baseshift}{Direction of baseline shift. Available options are  "n" (no shift), "h" (shift higher), and "l" (shift lower). Default is "n".}
+
+\item{method}{Clustering method used in this algorithm. Available options are "dbscan", "hdbscan", and "optics". Default is "dbscan".}
+
+\item{len_sep}{Logic value to determine whether separate clustering by segment length is applied. Default is TRUE.}
+
+\item{minPts}{Integer to specify the minimum size of clusters. Default is 1.}
+
+\item{lb_dup}{Lower bound for calling low-level duplication. Default is 0.15.}
+
+\item{hb_dup}{Higher bound for calling low-level duplication. Default is 0.7.}
+
+\item{lb_del}{Lower bound for calling low-level deletion. Default is 0.15.}
+
+\item{hb_del}{Higher bound for calling low-level deletion. Default is 1.5.}
 }
 \value{
-segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents
+Segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents
 low-level deletion. "+2" represents high-level duplication. "+1" represents low-level duplication.
-"0" represents no SCNA.
+"0" represents no copy changes.
 }
 \description{
 This function assigns segments SCNA labels to call different levels of SCNA.
-It estimates calling thresholds from logR distribution of individual samples.
+It estimates calling thresholds based on logR and segment length of individual samples.
+}
+\examples{
+segfile <- system.file("extdata", "example.seg", package = "labelSeg")
+segdata <- read.table(segfile,header=T,sep='\t')
+labeled.data <- labelseg(data=segdata)
 }

@@ -1,4 +1,4 @@
-Package: LabelSeg
+Package: labelSeg
 Title: CNA segment profile annotation
 Version: 0.0.0.9000
 Authors@R: c(person(given = "Hangjia",
