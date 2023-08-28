@@ -17,6 +17,6 @@ library(labelSeg)
 segfile <- system.file("extdata", "example.seg", package = "labelSeg")
 segdata <- read.table(segfile,header=T,sep='\t')
 
-# run LabelSeg
+# run labelSeg
 labeled.data <- labelseg(data=segdata)
 ```
