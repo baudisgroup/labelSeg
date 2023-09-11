@@ -24,7 +24,8 @@
 
 labelseg <- function(data, genome ='hg38',baseshift = 'n', method = 'dbscan', len_sep = TRUE, minPts = 1, lb_dup = 0.15, hb_dup = 0.7, lb_del=0.15, hb_del = 1.5){
     if (!genome %in% c("hg38","hg19","hg18")) stop("Invalid genome version")
-    if (len_sep  == FALSE & method != 'hdbscan') stop("The `method` parameter is invalid. When `len_sep = FALSE`, only \"hdbscan\" method is available")
+    if (len_sep  == FALSE & method != 'hdbscan') stop("The `method` parameter is invalid. When `len_sep` is set to FALSE, only \"hdbscan\" method is available")
+    if (minPts == 1 & method == 'hdbscan') stop("The `minPts` parameter is invalid. `minPts` should be greater than 1 when using the \"hdbscan\" method")
     if (!method %in% c("dbscan","optics","hdbscan")) stop("The `method` parameter is invalid. (Avaible options: \"dbscan\", \"hdbscan\", \"optics\")")
 
     data <- as.data.frame(data)
