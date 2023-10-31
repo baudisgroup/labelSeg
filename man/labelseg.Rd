@@ -9,12 +9,12 @@ labelseg(
   genome = "hg38",
   baseshift = "n",
   method = "dbscan",
-  len_sep = TRUE,
+  len.sep = TRUE,
   minPts = 1,
-  lb_dup = 0.15,
-  hb_dup = 0.7,
-  lb_del = 0.15,
-  hb_del = 1.5
+  lb.dup = 0.15,
+  hb.dup = 0.7,
+  lb.del = 0.15,
+  hb.del = 1.5
 )
 }
 \arguments{
@@ -26,21 +26,21 @@ labelseg(
 
 \item{method}{Clustering method used in this algorithm. Available options are "dbscan", "hdbscan", and "optics". Default is "dbscan".}
 
-\item{len_sep}{Logic value to determine whether separate clustering by segment length is applied. Default is TRUE.}
+\item{len.sep}{Logic value to determine whether separate clustering by segment length is applied. Default is TRUE.}
 
 \item{minPts}{Integer to specify the minimum size of clusters. Default is 1.}
 
-\item{lb_dup}{Lower bound for calling low-level duplication. Default is 0.15.}
+\item{lb.dup}{Lower bound for calling low-level duplication. Default is 0.15.}
 
-\item{hb_dup}{Higher bound for calling low-level duplication. Default is 0.7.}
+\item{hb.dup}{Higher bound for calling low-level duplication. Default is 0.7.}
 
-\item{lb_del}{Lower bound for calling low-level deletion. Default is 0.15.}
+\item{lb.del}{Lower bound for calling low-level deletion. Default is 0.15.}
 
-\item{hb_del}{Higher bound for calling low-level deletion. Default is 1.5.}
+\item{hb.del}{Higher bound for calling low-level deletion. Default is 1.5.}
 }
 \value{
-Segment data with labels. In terms of SCNA labels, "-2" represents high-level deletion. "-1" represents
-low-level deletion. "+2" represents high-level duplication. "+1" represents low-level duplication.
+Segment data with labels. In terms of SCNA labels, "-2" represents high-level focal deletion. "-1" represents
+low-level deletion. "+2" represents high-level focal duplication. "+1" represents low-level duplication.
 "0" represents no copy changes.
 }
 \description{
@@ -48,7 +48,6 @@ This function assigns segments SCNA labels to call different levels of SCNA.
 It estimates calling thresholds based on logR and segment length of individual samples.
 }
 \examples{
-segfile <- system.file("extdata", "example.seg", package = "labelSeg")
-segdata <- read.table(segfile,header=T,sep='\t')
-labeled.data <- labelseg(data=segdata)
+data(example.seg)
+labeled.seg <- labelseg(data=example.seg)
 }

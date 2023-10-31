@@ -1,38 +1,38 @@
-find_baseline <- function(peak_mean, l_length, baseshift){
-    neu_idx <- 0
-    length_control <- 0.4
+find_baseline <- function(peak.mean, l.length, baseshift){
+    neu.idx <- 0
+    length.control <- 0.4
     recheck <- 0
-    while(length_control >= 0.2 & neu_idx == 0){
-        for (i in order(abs(peak_mean))){
-            if ((l_length[i]/sum(l_length)) >= length_control){
-                if (neu_idx == 0 & recheck == 0){
-                    neu_idx <- i
-                    neu_thre <- peak_mean[i]
+    while(length.control >= 0.2 & neu.idx == 0){
+        for (i in order(abs(peak.mean))){
+            if ((l.length[i]/sum(l.length)) >= length.control){
+                if (neu.idx == 0 & recheck == 0){
+                    neu.idx <- i
+                    neu.thre <- peak.mean[i]
                 }
                 if (baseshift == 'n'){
                     break
                 }else if (baseshift == 'h'){
-                    neu_idx <- 0
+                    neu.idx <- 0
                     recheck <- 1
-                    if (peak_mean[i] > neu_thre){
-                        neu_idx <- i
-                        neu_thre <- peak_mean[i]
+                    if (peak.mean[i] > neu.thre){
+                        neu.idx <- i
+                        neu.thre <- peak.mean[i]
                         break
                     }
                 }else if (baseshift == 'l'){
-                    neu_idx <- 0
+                    neu.idx <- 0
                     recheck <- 1
-                    if (peak_mean[i] < neu_thre){
-                        neu_idx <- i
-                        neu_thre <- peak_mean[i]
+                    if (peak.mean[i] < neu.thre){
+                        neu.idx <- i
+                        neu.thre <- peak.mean[i]
                         break
                     }
                 }
             } 
         }
-        length_control <- length_control - 0.1
+        length.control <- length.control - 0.1
     }
     # if target baseline is not found
-    if (neu_idx == 0) neu_thre <- 0
-    return(neu_thre)
+    if (neu.idx == 0) neu.thre <- 0
+    return(neu.thre)
 }

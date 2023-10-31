@@ -1,48 +1,53 @@
-clus <- function(value, len, var_thre, eps, minPts, method){
+clus <- function(value, len, var.thre, eps, minPts, method){
     if (method == 'dbscan' | method == 'optics'){
-        change_eps <- TRUE
-        while(change_eps){
+        change.eps <- TRUE
+        while(change.eps){
             if (method == 'dbscan'){
+                # clustering using dbscan
                 db <- dbscan::dbscan(as.matrix(value),minPts = minPts,eps = eps)
             } else {
+                # clustering using optics
                 db <- dbscan::optics(as.matrix(value),minPts = minPts)
                 db <- dbscan::extractDBSCAN(db,eps_cl = eps)
             }
+            # treat noisy points as independent clusters
             if (any(db$cluster == 0)){
-                noise_pt_idx <- which(db$cluster == 0)
-                db$cluster[noise_pt_idx] <- seq(max(unique(db$cluster))+1,max(unique(db$cluster))+length(noise_pt_idx))
+                noise.pt.idx <- which(db$cluster == 0)
+                db$cluster[noise.pt.idx] <- seq(max(unique(db$cluster))+1,max(unique(db$cluster))+length(noise.pt.idx))
             }
-            db_lst <- list()
-            db_count_lst <- list()
+            db.lst <- list()
+            db.count.lst <- list()
             for (i in unique(db$cluster)){
-                db_lst[[i]] <- value[db$cluster == i]
-                db_count_lst[[i]] <- len[db$cluster == i]
+                db.lst[[i]] <- value[db$cluster == i]
+                db.count.lst[[i]] <- len[db$cluster == i]
             }
-            db_lst_sd <- sapply(db_lst, function(x) {if(length(x)>1){pracma::std(x)}else{0}})
-            if (any(db_lst_sd >= var_thre)){
-                change_eps <- TRUE
+            # self-adaptive choosing for eps by controlling sd of each cluster
+            db.lst.sd <- sapply(db.lst, function(x) {if(length(x)>1){pracma::std(x)}else{0}})
+            if (any(db.lst.sd >= var.thre)){
+                change.eps <- TRUE
                 eps <- eps-0.01
             }else{
-                change_eps <- FALSE
+                change.eps <- FALSE
             }
         }
+          # clustering using hdbscan
     } else if (method == 'hdbscan'){
         db <- dbscan::hdbscan(as.matrix(value),minPts = minPts)
         if (any(db$cluster == 0)){
-            noise_pt_idx <- which(db$cluster == 0)
-            db$cluster[noise_pt_idx] <- seq(max(unique(db$cluster))+1,max(unique(db$cluster))+length(noise_pt_idx))
+            noise.pt.idx <- which(db$cluster == 0)
+            db$cluster[noise.pt.idx] <- seq(max(unique(db$cluster))+1,max(unique(db$cluster))+length(noise.pt.idx))
         }
-        db_lst <- list()
-        db_count_lst <- list()
+        db.lst <- list()
+        db.count.lst <- list()
         for (i in unique(db$cluster)){
-            db_lst[[i]] <- value[db$cluster == i]
-            db_count_lst[[i]] <- len[db$cluster == i]
+            db.lst[[i]] <- value[db$cluster == i]
+            db.count.lst[[i]] <- len[db$cluster == i]
         }
     }
 
     clus.res <- list()
-    clus.res[[1]] <- db_lst
-    clus.res[[2]] <- db_count_lst
+    clus.res[[1]] <- db.lst
+    clus.res[[2]] <- db.count.lst
     return(clus.res)
 }
 

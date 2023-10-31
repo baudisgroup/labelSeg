@@ -1,87 +1,94 @@
-labelindseg <- function(data, genome, baseshift, method, minPts, lb_dup, hb_dup, lb_del, hb_del){
+labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup, lb.del, hb.del){
     set.seed(123)
-    segment_mean <- as.numeric(data[,6])
+    segment.mean <- as.numeric(data[,6])
     len <- get_relative_chrlen(data, genome)
 
     # Long segment clustering
-    large.value <- segment_mean[len >= 0.2]
+    large.value <- segment.mean[len >= 0.2]
     large.len <- len[len >= 0.2]
 
     if (length(large.value) == 0){
         warning(unique(data[,1]),' is excluded because no large segments exist \n')
         return()
     }
-    clus.res <- clus(large.value,large.len,var_thre = 0.05,eps = 0.05,minPts = minPts, method = method)
-
-    l_clus_val <- clus.res[[1]]
-    l_count <- clus.res[[2]]
-    l_length<- sapply(l_count, function(x){sum(x)})
-    l_weight <- lapply(l_count, function(x){x/sum(x)})
-    peak_mean <- c()
-    for (i in seq_len(length(l_clus_val))){
-        peak_mean <- c(peak_mean,weighted.mean(x=l_clus_val[[i]],w=l_weight[[i]]))
+    clus.res <- clus(large.value,large.len,var.thre = 0.05,eps = 0.05,minPts = minPts, method = method)
+    ## logR value in each cluster
+    l.clus.val <- clus.res[[1]]
+    ## segment length in each cluster
+    l.count <- clus.res[[2]]
+    l.length<- sapply(l.count, function(x){sum(x)})
+    l.weight <- lapply(l.count, function(x){x/sum(x)})
+    ## feature value in long segment clusters is weighted mean by segment length
+    peak.mean <- c()
+    for (i in seq_len(length(l.clus.val))){
+        peak.mean <- c(peak.mean,stats::weighted.mean(x=l.clus.val[[i]],w=l.weight[[i]]))
     }
-    ### for result stability when closed clusters have the same length
-    l_clus_val <- l_clus_val[order(peak_mean)]
-    l_length <- l_length[order(peak_mean)]
-    peak_mean <- peak_mean[order(peak_mean)]
+    ### this sorting is for result stability when closed clusters have the same length
+    l.clus.val <- l.clus.val[order(peak.mean)]
+    l.length <- l.length[order(peak.mean)]
+    peak.mean <- peak.mean[order(peak.mean)]
 
     ## Find baseline cluster
-    neu_thre <- find_baseline(peak_mean, l_length, baseshift)
-    ## Find low-level clusters
-    low_dup_clus <- find_low_dup_target(l_clus_val, l_length, peak_mean, neu_thre, lb_dup, hb_dup, TRUE)
-    gain_thre <- low_dup_clus[[1]]
-    gain_sd <- low_dup_clus[[2]]
+    neu.thre <- find_baseline(peak.mean, l.length, baseshift)
+    ## Find low-level target clusters
+    ### for optics and dbscan where variance control is applied
+    small.sd.control <- TRUE
+    if (method == "hdbscan") small.sd.control <- FALSE
+    
+    low.dup.clus <- find_low_target(l.clus.val, l.length, peak.mean, neu.thre, lb.dup, hb.dup, 'dup', small.sd.control)
+    gain.thre <- low.dup.clus[[1]]
+    gain.sd <- low.dup.clus[[2]]
 
-    low_del_clus <- find_low_del_target(l_clus_val, l_length, peak_mean, neu_thre, lb_del, hb_del, TRUE)
-    loss_thre <- low_del_clus[[1]]
-    loss_sd <- low_del_clus[[2]]
+    low.del.clus <- find_low_target(l.clus.val, l.length, peak.mean, neu.thre, lb.del, hb.del, 'del', small.sd.control)
+    loss.thre <- low.del.clus[[1]]
+    loss.sd <- low.del.clus[[2]]
 
     # Short segment clustering
-    small.value <- segment_mean[len < 0.2]
+    small.value <- segment.mean[len < 0.2]
     small.len <- len[len < 0.2]
 
     if (length(small.value) == 0){
-        data <- assign.label(data,gain_thre,gain_sd, NULL, loss_thre, loss_sd, NULL)
+        data <- assign.label(data,gain.thre,gain.sd, NULL, loss.thre, loss.sd, NULL)
         return(data)
     }
    
-    clus.res <- clus(small.value,small.len,var_thre = 0.1,eps = 0.1,minPts = minPts, method = method)
-    s_clus_val <- clus.res[[1]]
-    s_count <- clus.res[[2]]
-    s_length <- sapply(s_count, function(x){sum(x)})
-    focal_peak_mean <- vapply(s_clus_val, function(x){x[which.min(abs(x))]}, numeric(1))
-    s_clus_val <- s_clus_val[order(focal_peak_mean)]
-    s_length <- s_length[order(focal_peak_mean)]
-    focal_peak_mean <- focal_peak_mean[order(focal_peak_mean)]
+    clus.res <- clus(small.value,small.len,var.thre = 0.1,eps = 0.1,minPts = minPts, method = method)
+    s.clus.val <- clus.res[[1]]
+    s.count <- clus.res[[2]]
+    s.length <- sapply(s.count, function(x){sum(x)})
+    ## feature value in short segment clusters is the logR value closest to 0 
+    focal.peak.mean <- vapply(s.clus.val, function(x){x[which.min(abs(x))]}, numeric(1))
+    s.clus.val <- s.clus.val[order(focal.peak.mean)]
+    s.length <- s.length[order(focal.peak.mean)]
+    focal.peak.mean <- focal.peak.mean[order(focal.peak.mean)]
     ## Find low-level clusters in short clustering in case long clustering returns nothing
-    if (is.null(gain_thre)){
-        low_dup_clus <- find_low_dup_target(s_clus_val, s_length, focal_peak_mean, neu_thre, 0.1, 0.6, TRUE)
-        gain_thre <- low_dup_clus[[1]]
-        gain_sd <- low_dup_clus[[2]]
+    if (is.null(gain.thre)){
+        low.dup.clus <- find_low_target(s.clus.val, s.length, focal.peak.mean, neu.thre, 0.1, 0.6, 'dup', small.sd.control)
+        gain.thre <- low.dup.clus[[1]]
+        gain.sd <- low.dup.clus[[2]]
     }
 
-    if (is.null(loss_thre)){
-        low_del_clus <- find_low_del_target(s_clus_val, s_length, focal_peak_mean, neu_thre, 0.1, 1, TRUE)
-        loss_thre <- low_del_clus[[1]]
-        loss_sd <- low_del_clus[[2]]
+    if (is.null(loss.thre)){
+        low.del.clus <- find_low_target(s.clus.val, s.length, focal.peak.mean, neu.thre, 0.1, 1, 'del', small.sd.control)
+        loss.thre <- low.del.clus[[1]]
+        loss.sd <- low.del.clus[[2]]
     }
     
-    ## Find high-level clusters
+    ## Find high-level target clusters
 
-    gain_2_thre <-  find_high_dup_target(focal_peak_mean, neu_thre, gain_thre)
-    loss_2_thre <-  find_high_del_target(focal_peak_mean, neu_thre, loss_thre)
+    gain.2.thre <-  find_high_target(focal.peak.mean, neu.thre, gain.thre, 'dup')
+    loss.2.thre <-  find_high_target(focal.peak.mean, neu.thre, loss.thre, 'del')
 
 
-    # only label focal change as +2
-    if (!is.null(gain_2_thre) & !is.null(gain_thre)){
-        gain_2_thre <- ifelse(any(len >= 0.2),max(gain_2_thre,max(segment_mean[len >= 0.2])+0.01), gain_2_thre)
+    # only label focal change as high-level CNAs (+2/-2)
+    if (!is.null(gain.2.thre) & !is.null(gain.thre)){
+        gain.2.thre <- ifelse(any(len >= 0.2),max(gain.2.thre,max(segment.mean[len >= 0.2])+0.01), gain.2.thre)
     }
-    if (!is.null(loss_2_thre) & !is.null(loss_thre)){
-        loss_2_thre <- ifelse(any(len >= 0.2),min(loss_2_thre,min(segment_mean[len >= 0.2])-0.01), loss_2_thre)
+    if (!is.null(loss.2.thre) & !is.null(loss.thre)){
+        loss.2.thre <- ifelse(any(len >= 0.2),min(loss.2.thre,min(segment.mean[len >= 0.2])-0.01), loss.2.thre)
     }
 
-    data <- assign.label(data,gain_thre,gain_sd, gain_2_thre, loss_thre, loss_sd, loss_2_thre)
+    data <- assign.label(data,gain.thre,gain.sd, gain.2.thre, loss.thre, loss.sd, loss.2.thre)
 
     return(data)
 }
