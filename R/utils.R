@@ -1,5 +1,4 @@
 get_relative_chrlen <- function(data, genome){
-    data(sysdata, envir=environment())
     chr.bin <- get(paste0(genome,'_chr_bins'))
     Start <- as.numeric(data[,3])
     End <- as.numeric(data[,4])
