@@ -19,7 +19,7 @@ The package requires segmentation data in the form of a *.seg* file. This file s
 2. Chromosome
 3. Segment start position
 4. Segment end position
-5. Number of markers in the segment
+5. Number of markers in the segment (optional)
 6. LogR values
 
 ## Output 
