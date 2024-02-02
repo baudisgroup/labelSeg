@@ -43,3 +43,7 @@ data(example.seg)
 ```{r}
 labeled.seg <- labelseg(data=example.seg, genome="hg38")
 ```
+
+When using labelSeg in any published analysis, please cite the following article :
+
+Zhao, H., & Baudis, M. (2024). labelSeg: segment annotation for tumor copy number alteration profiles. Briefings in bioinformatics, 25(2), bbad541. https://doi.org/10.1093/bib/bbad541
