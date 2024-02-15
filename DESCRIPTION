@@ -1,6 +1,6 @@
 Package: labelSeg
 Title: CNA segment profile annotation
-Version: 0.0.0.9000
+Version: 0.9.0
 Authors@R: c(person(given = "Hangjia",
            family = "Zhao",
            role = c("aut", "cre"),
@@ -13,11 +13,11 @@ Description: Output segment profiles with SCNA labels
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Imports:
-	pracma, 
-	dbscan,
-    stats
+	pracma (>= 2.4.4), 
+	dbscan (>= 1.1-12),
+	stats
 Depends: 
-    R (>= 2.10)
+	R (>= 3.1.0)
 LazyData: FALSE

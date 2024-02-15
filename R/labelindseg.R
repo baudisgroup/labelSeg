@@ -1,4 +1,4 @@
-labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup, lb.del, hb.del){
+labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup, lb.del, hb.del, shiftnum){
     set.seed(123)
     segment.mean <- as.numeric(data[,6])
     len <- get_relative_chrlen(data, genome)
@@ -29,7 +29,7 @@ labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup,
     peak.mean <- peak.mean[order(peak.mean)]
 
     ## Find baseline cluster
-    neu.thre <- find_baseline(peak.mean, l.length, baseshift)
+    neu.thre <- find_baseline(peak.mean, l.length, baseshift, shiftnum)
     ## Find low-level target clusters
     ### for optics and dbscan where variance control is applied
     small.sd.control <- TRUE

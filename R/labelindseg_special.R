@@ -1,4 +1,4 @@
-labelindseg_special <- function(data, genome, baseshift, minPts, lb.dup, hb.dup, lb.del, hb.del){
+labelindseg_special <- function(data, genome, baseshift, minPts, lb.dup, hb.dup, lb.del, hb.del, shiftnum){
     set.seed(123)
     segment.mean <- as.numeric(data[,6])
     len <- get_relative_chrlen(data, genome)
@@ -21,7 +21,7 @@ labelindseg_special <- function(data, genome, baseshift, minPts, lb.dup, hb.dup,
     peak.mean <- peak.mean[order(peak.mean)]
 
     ## Find baseline cluster
-    neu.thre <- find_baseline(peak.mean, clus.length, baseshift)
+    neu.thre <- find_baseline(peak.mean, clus.length, baseshift, shiftnum)
 
     ## Find low-level clusters
     low.dup.clus <- find_low_target(clus.val, clus.length, peak.mean, neu.thre, lb.dup, hb.dup, 'dup', FALSE)
