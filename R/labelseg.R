@@ -14,6 +14,7 @@
 #' @param lb.del Lower bound for calling low-level deletion. Default is 0.15.
 #' @param hb.del Higher bound for calling low-level deletion. Default is 1.5.
 #' @param shiftnum Number of target baseline clusters to shift. Only used if the parameter `baseshift` is "h" or "l".
+#' @param labeled Logic value to determine whether the input data includes labels. If set to TRUE, the baseline will be determined by the original callings. Default is FALSE.
 #' @return Segment data with labels. In terms of SCNA labels, "-2" represents high-level focal deletion. "-1" represents
 #' low-level deletion. "+2" represents high-level focal duplication. "+1" represents low-level duplication.
 #' "0" represents no copy changes.
@@ -22,7 +23,7 @@
 #' data(example.seg)
 #' labeled.seg <- labelseg(data=example.seg)
 
-labelseg <- function(data, genome ='hg38',baseshift = 'n', method = 'dbscan', len.sep = TRUE, minPts = 1, lb.dup = 0.15, hb.dup = 0.7, lb.del=0.15, hb.del = 1.5, shiftnum=1){
+labelseg <- function(data, genome ='hg38',baseshift = 'n', method = 'dbscan', len.sep = TRUE, minPts = 1, lb.dup = 0.15, hb.dup = 0.7, lb.del=0.15, hb.del = 1.5, shiftnum=1, labeled=FALSE){
     # check input
     genome <- match.arg(genome, c("hg38","hg19","hg18"))
     method <- match.arg(method, c("dbscan","optics","hdbscan"))
@@ -39,10 +40,10 @@ labelseg <- function(data, genome ='hg38',baseshift = 'n', method = 'dbscan', le
         inddata <- data[data[,1]== sample.name[i],]
         if (len.sep){
             # separate clustering by segment length
-            result[[i]] <- labelindseg(data=inddata,genome=genome,baseshift=baseshift,method=method,minPts=minPts,lb.dup=lb.dup,hb.dup=hb.dup,lb.del=lb.del,hb.del=hb.del,shiftnum=shiftnum)
+            result[[i]] <- labelindseg(data=inddata,genome=genome,baseshift=baseshift,method=method,minPts=minPts,lb.dup=lb.dup,hb.dup=hb.dup,lb.del=lb.del,hb.del=hb.del,shiftnum=shiftnum,labeled=labeled)
         } else{
             # uniform clustering
-            result[[i]] <- labelindseg_special(data=inddata,genome=genome,baseshift=baseshift,minPts=minPts,lb.dup=lb.dup,hb.dup=hb.dup,lb.del=lb.del,hb.del=hb.del,shiftnum=shiftnum)
+            result[[i]] <- labelindseg_special(data=inddata,genome=genome,baseshift=baseshift,minPts=minPts,lb.dup=lb.dup,hb.dup=hb.dup,lb.del=lb.del,hb.del=hb.del,shiftnum=shiftnum,labeled=labeled)
         }
     }
     result <- do.call(rbind,result)

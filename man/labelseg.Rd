@@ -15,7 +15,8 @@ labelseg(
   hb.dup = 0.7,
   lb.del = 0.15,
   hb.del = 1.5,
-  shiftnum = 1
+  shiftnum = 1,
+  labeled = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ labelseg(
 \item{hb.del}{Higher bound for calling low-level deletion. Default is 1.5.}
 
 \item{shiftnum}{Number of target baseline clusters to shift. Only used if the parameter \code{baseshift} is "h" or "l".}
+
+\item{labeled}{Logic value to determine whether the input data includes labels. If set to TRUE, the baseline will be determined by the original callings. Default is FALSE.}
 }
 \value{
 Segment data with labels. In terms of SCNA labels, "-2" represents high-level focal deletion. "-1" represents

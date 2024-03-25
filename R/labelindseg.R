@@ -1,4 +1,4 @@
-labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup, lb.del, hb.del, shiftnum){
+labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup, lb.del, hb.del, shiftnum, labeled){
     set.seed(123)
     segment.mean <- as.numeric(data[,6])
     len <- get_relative_chrlen(data, genome)
@@ -29,7 +29,14 @@ labelindseg <- function(data, genome, baseshift, method, minPts, lb.dup, hb.dup,
     peak.mean <- peak.mean[order(peak.mean)]
 
     ## Find baseline cluster
-    neu.thre <- find_baseline(peak.mean, l.length, baseshift, shiftnum)
+    ### check if the data has been called
+    if (labeled){
+        orilabel <- data[['label']]
+        oribase <- stats::weighted.mean(x=segment.mean[orilabel == '0'],w=len[orilabel == '0']/sum(len[orilabel == '0']))
+    } else{
+        oribase <- NULL
+    }
+    neu.thre <- find_baseline(peak.mean, l.length, baseshift, shiftnum, oribase)
     ## Find low-level target clusters
     ### for optics and dbscan where variance control is applied
     small.sd.control <- TRUE
