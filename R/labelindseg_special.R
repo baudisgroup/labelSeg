@@ -25,6 +25,7 @@ labelindseg_special <- function(data, genome, baseshift, minPts, lb.dup, hb.dup,
     if (labeled){
         orilabel <- data[['label']]
         oribase <- stats::weighted.mean(x=segment.mean[orilabel == '0'],w=len[orilabel == '0']/sum(len[orilabel == '0']))
+        if (is.na(oribase)) oribase <- 0
     } else{
         oribase <- NULL
     }
